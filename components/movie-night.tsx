@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Check, ChevronRight, Clapperboard, Clock3, Crown, Film, Heart, MapPin, Search, ShieldCheck, Sparkles, Ticket, Users } from "lucide-react";
+import { CalendarDays, ChevronRight, Crown, Film, Heart, MapPin, Search, ShieldCheck, Ticket, Users } from "lucide-react";
 
 type Movie = { id: number; title: string; overview?: string; poster_path?: string | null; release_date?: string; vote_average?: number };
 type EventData = { id: string; title: string; description: string; venue: string; starts_at: string; status: string; seat_rows: number; seats_per_row: number; selected_movie_id?: number | null };
@@ -13,7 +13,6 @@ export default function MovieNight({ invitationToken = "" }: { invitationToken?:
   const [bookings,setBookings]=useState<{seat_code:string}[]>([]);
   const [query,setQuery]=useState("");
   const [token,setToken]=useState(invitationToken);
-  const [guestName,setGuestName]=useState("");
   const [selectedSeat,setSelectedSeat]=useState("");
   const [message,setMessage]=useState("");
   const [busy,setBusy]=useState(false);
@@ -25,7 +24,6 @@ export default function MovieNight({ invitationToken = "" }: { invitationToken?:
   const [eventVenue,setEventVenue]=useState("Private screening room");
   const [eventDate,setEventDate]=useState("");
   const [eventDescription,setEventDescription]=useState("One night. One screen. Endless memories.");
-  const [selectedMovie,setSelectedMovie]=useState<number|null>(null);
 
   const loadEvent=async()=>{const r=await fetch("/api/event");const d=await r.json();if(d.event){setEvent(d.event);setEventTitle(d.event.title);setEventVenue(d.event.venue);setEventDescription(d.event.description);}};
   const loadMovies=async(q="")=>{const r=await fetch("/api/movies"+(q?"?q="+encodeURIComponent(q):""));const d=await r.json();setMovies(d.results??[]);};
@@ -56,7 +54,7 @@ export default function MovieNight({ invitationToken = "" }: { invitationToken?:
           {event?<div className="event-card"><div><div className="eyebrow">You're invited</div><h2 className="serif" style={{fontSize:28,margin:"10px 0"}}>{event.title}</h2><p className="muted" style={{margin:0}}>{event.description}</p><div className="event-meta"><span><CalendarDays size={15}/>{new Date(event.starts_at).toLocaleString()}</span><span><MapPin size={15}/>{event.venue}</span><span><Ticket size={15}/>Free entry</span></div></div><button className="btn" onClick={()=>setTab(token?"seats":"vote")}>Join the night</button></div>:<div className="panel"><p className="muted">The host is preparing the screening. Check back when your event invitation is ready.</p><button className="btn secondary" onClick={()=>setTab("admin")}>Host setup</button></div>}</section>
         <section className="section"><div className="section-head"><div><div className="eyebrow">A little anticipation</div><h2>Make it a movie night.</h2></div><button className="ghost" onClick={()=>setTab("movies")}>Browse films ↗</button></div><div className="movie-grid">{movies.slice(0,5).map(m=><MovieTile key={m.id} movie={m} onVote={()=>setTab("vote")}/>)}</div></section></>}
 
-      {tab==="movies"&&<section className="section"><div className="section-head"><div><div className="eyebrow">The shortlist starts here</div><h2>Find your next favourite.</h2></div><span className="badge">Movie discovery</span></div><div className="form-row" style={{marginBottom:24}}><input className="field" style={{flex:1}} placeholder="Search a title, genre or actor..." value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&runSearch()}/><button className="btn" onClick={runSearch} disabled={busy}><Search size={15} style={{display:"inline",verticalAlign:"middle",marginRight:7}}/>Search</button></div><div className="movie-grid">{movies.map(m=><MovieTile key={m.id} movie={m} onVote={()=>{setSelectedMovie(m.id);setTab("vote");}}/>)}</div>{!movies.length&&<p className="muted">No films found. Try another title.</p>}</section>}
+      {tab==="movies"&&<section className="section"><div className="section-head"><div><div className="eyebrow">The shortlist starts here</div><h2>Find your next favourite.</h2></div><span className="badge">Movie discovery</span></div><div className="form-row" style={{marginBottom:24}}><input className="field" style={{flex:1}} placeholder="Search a title, genre or actor..." value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&runSearch()}/><button className="btn" onClick={runSearch} disabled={busy}><Search size={15} style={{display:"inline",verticalAlign:"middle",marginRight:7}}/>Search</button></div><div className="movie-grid">{movies.map(m=><MovieTile key={m.id} movie={m} onVote={()=>{setTab("vote");}}/>)}</div>{!movies.length&&<p className="muted">No films found. Try another title.</p>}</section>}
 
       {tab==="vote"&&<section className="section"><div className="section-head"><div><div className="eyebrow">Your voice, your movie</div><h2>What are we watching?</h2></div><span className="badge">One vote per invite</span></div><div className="panel"><p className="muted">Choose the film you'd love to see on the big screen. You can update your vote until the host closes voting.</p><div className="form-row" style={{margin:"18px 0"}}><input className="field" style={{flex:1}} placeholder="Your invitation token" value={token} onChange={e=>setToken(e.target.value)}/></div><div className="movie-grid">{movies.map(m=><MovieTile key={m.id} movie={m} onVote={()=>vote(m.id)} action="Vote for this"/></div></div></section>}
 
