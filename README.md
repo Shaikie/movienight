@@ -6,7 +6,7 @@ A private movie-night platform built with Next.js 16, React, TypeScript, Tailwin
 
 - Cinematic, responsive guest experience
 - Movie discovery through TMDB (curated sample titles work without a TMDB key)
-- Private, one-time invitation links with hashed tokens
+- Private, unique invitation links with hashed tokens
 - One vote per invitation, with the ability to update a vote
 - Standard cinema seating with server-side seat validation
 - Atomic seat reservations to prevent two guests booking the same seat
