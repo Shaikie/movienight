@@ -46,7 +46,7 @@ create unique index if not exists bookings_one_active_seat on public.bookings(ev
 create or replace function public.reserve_event_seat(p_event_id uuid, p_invitation_id uuid, p_seat_code text)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare ev public.events%rowtype; existing public.bookings%rowtype; created public.bookings%rowtype;
-declare row_letter text; seat_number int;
+row_letter text; seat_number int;
 begin
   select * into ev from public.events where id = p_event_id and status = 'published' for update;
   if not found then raise exception 'This event is not accepting reservations.'; end if;
