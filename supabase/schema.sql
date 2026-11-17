@@ -1,4 +1,4 @@
--- MovieNight database schema. Run once in Supabase SQL Editor.
+-- MovieNight database schema. Run once in Supabase SQL Editor or as a migration.
 create extension if not exists pgcrypto;
 
 create table if not exists public.events (
@@ -41,70 +41,97 @@ create table if not exists public.bookings (
   created_at timestamptz not null default now(),
   unique(event_id, invitation_id)
 );
-create unique index if not exists bookings_one_active_seat on public.bookings(event_id, seat_code) where status = 'confirmed';
 
-create or replace function public.reserve_event_seat(p_event_id uuid, p_invitation_id uuid, p_seat_code text)
-returns jsonb language plpgsql security definer set search_path = public as $$
-declare ev public.events%rowtype; existing public.bookings%rowtype; created public.bookings%rowtype;
-row_letter text; seat_number int;
-begin
-  select * into ev from public.events where id = p_event_id and status = 'published' for update;
-  if not found then raise exception 'This event is not accepting reservations.'; end if;
-  if not exists(select 1 from public.invitations where id=p_invitation_id and event_id=p_event_id) then raise exception 'Invalid invitation.'; end if;
-  row_letter := split_part(p_seat_code, '-', 1);
-  seat_number := split_part(p_seat_code, '-', 2)::int;
-  if length(row_letter) <> 1 or ascii(upper(row_letter)) - 64 not between 1 and ev.seat_rows or seat_number not between 1 and ev.seats_per_row then
-    raise exception 'That seat does not exist.';
-  end if;
-  select * into existing from public.bookings where event_id=p_event_id and invitation_id=p_invitation_id and status='confirmed';
-  if found then raise exception 'This invitation already has a reserved seat.'; end if;
-  insert into public.bookings(event_id, invitation_id, seat_code) values(p_event_id,p_invitation_id,upper(p_seat_code)) returning * into created;
-  return jsonb_build_object('id',created.id,'seat_code',created.seat_code,'status',created.status);
-exception when unique_violation then raise exception 'That seat has just been reserved by someone else. Please choose another seat.';
-end; $$;
+create unique index if not exists bookings_one_active_seat
+  on public.bookings(event_id, seat_code)
+  where status = 'confirmed';
 
+-- All application access goes through trusted Next.js API routes using the
+-- Supabase secret key. Browser roles receive no direct table privileges.
 alter table public.events enable row level security;
 alter table public.invitations enable row level security;
 alter table public.votes enable row level security;
 alter table public.bookings enable row level security;
 
--- Revoke direct table access from public roles; all application access goes through
--- Next.js API routes using the server-side service_role key (which bypasses RLS).
-revoke all on public.events, public.invitations, public.votes, public.bookings from anon, authenticated;
-grant all on public.events, public.invitations, public.votes, public.bookings to service_role;
-grant execute on function public.reserve_event_seat(uuid,uuid,text) to service_role;
+revoke all on public.events, public.invitations, public.votes, public.bookings
+  from anon, authenticated;
+grant all on public.events, public.invitations, public.votes, public.bookings
+  to service_role;
 
--- Defense-in-depth RLS policies. These match the access patterns the API routes
--- expose publicly: anyone can view a published event, look up an invitation by
--- token hash, cast a vote, or reserve a seat. Writes are validated inside the
--- API routes before reaching the database.
+-- SECURITY INVOKER is sufficient because the API calls this as service_role.
+-- Explicitly revoke PUBLIC because PostgreSQL grants EXECUTE to PUBLIC by default.
+create or replace function public.reserve_event_seat(
+  p_event_id uuid,
+  p_invitation_id uuid,
+  p_seat_code text
+)
+returns jsonb
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  ev public.events%rowtype;
+  existing public.bookings%rowtype;
+  created public.bookings%rowtype;
+  row_letter text;
+  seat_number int;
+  normalized_seat text := upper(p_seat_code);
+begin
+  select * into ev
+  from public.events
+  where id = p_event_id and status = 'published'
+  for update;
 
--- Events: public read of published events only.
-create policy "events_public_select_published" on public.events
-  for select to anon
-  using (status = 'published');
+  if not found then
+    raise exception 'This event is not accepting reservations.';
+  end if;
 
--- Invitations: public read by token hash (used for invitation lookup).
-create policy "invitations_public_select_by_hash" on public.invitations
-  for select to anon
-  using (true);
+  if not exists (
+    select 1 from public.invitations
+    where id = p_invitation_id and event_id = p_event_id
+  ) then
+    raise exception 'Invalid invitation.';
+  end if;
 
--- Votes: public insert (validated by API route), public read.
-create policy "votes_public_insert" on public.votes
-  for insert to anon
-  with check (true);
-create policy "votes_public_select" on public.votes
-  for select to anon
-  using (true);
+  if normalized_seat !~ '^[A-L]-(1[0-6]|[1-9])$' then
+    raise exception 'Invalid seat code.';
+  end if;
 
--- Bookings: public insert (validated by API route + RPC), public read.
-create policy "bookings_public_insert" on public.bookings
-  for insert to anon
-  with check (true);
-create policy "bookings_public_select" on public.bookings
-  for select to anon
-  using (true);
+  row_letter := split_part(normalized_seat, '-', 1);
+  seat_number := split_part(normalized_seat, '-', 2)::int;
 
--- Create your first screening event after running this schema:
--- insert into public.events(title,description,venue,starts_at,status,seat_rows,seats_per_row)
--- values ('MovieNight Premiere','One night. One screen. Endless memories.','Your venue',now() + interval '7 days','published',5,8);
+  if ascii(row_letter) - 64 not between 1 and ev.seat_rows
+     or seat_number not between 1 and ev.seats_per_row then
+    raise exception 'That seat does not exist.';
+  end if;
+
+  select * into existing
+  from public.bookings
+  where event_id = p_event_id
+    and invitation_id = p_invitation_id
+    and status = 'confirmed';
+
+  if found then
+    raise exception 'This invitation already has a reserved seat.';
+  end if;
+
+  insert into public.bookings(event_id, invitation_id, seat_code)
+  values (p_event_id, p_invitation_id, normalized_seat)
+  returning * into created;
+
+  return jsonb_build_object(
+    'id', created.id,
+    'seat_code', created.seat_code,
+    'status', created.status
+  );
+exception
+  when unique_violation then
+    raise exception 'That seat has just been reserved by someone else. Please choose another seat.';
+end;
+$$;
+
+revoke all on function public.reserve_event_seat(uuid, uuid, text)
+  from public, anon, authenticated;
+grant execute on function public.reserve_event_seat(uuid, uuid, text)
+  to service_role;
