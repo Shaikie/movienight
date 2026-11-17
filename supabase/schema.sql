@@ -46,6 +46,11 @@ create unique index if not exists bookings_one_active_seat
   on public.bookings(event_id, seat_code)
   where status = 'confirmed';
 
+create index if not exists bookings_invitation_id_idx
+  on public.bookings(invitation_id);
+create index if not exists votes_invitation_id_idx
+  on public.votes(invitation_id);
+
 -- All application access goes through trusted Next.js API routes using the
 -- Supabase secret key. Browser roles receive no direct table privileges.
 alter table public.events enable row level security;
