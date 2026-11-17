@@ -164,12 +164,23 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
   };
 
   const saveEvent=async()=>{
-    if(!event){flash("No event available.");return;}
+    const creating=!event?.id;
     try {
-      const result=await apiJSON<{event:EventData}>("/api/admin/events",{method:"POST",body:JSON.stringify({title:eventForm.title,venue:eventForm.venue,startsAt:eventForm.starts_at,description:eventForm.description})});
+      const result=await apiJSON<{event:EventData}>("/api/admin/events",{
+        method:creating?"POST":"PATCH",
+        body:JSON.stringify({
+          ...(creating?{}:{eventId:event.id}),
+          title:eventForm.title,
+          venue:eventForm.venue,
+          startsAt:eventForm.starts_at,
+          description:eventForm.description,
+          seatRows:eventForm.seat_rows,
+          seatsPerRow:eventForm.seats_per_row
+        })
+      });
       setEvent(result.event);
       setEventForm({...result.event,id:undefined});
-      flash("Screening details saved.");
+      flash(creating?"Screening created.":"Screening details updated.");
     } catch(err){flash(err instanceof Error?err.message:"Failed to save event.");}
   };
 
