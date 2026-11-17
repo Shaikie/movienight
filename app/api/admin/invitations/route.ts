@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const db = getAdminDb();
     const { data, error } = await db
       .from("invitations")
-      .select("id,guest_name,token_hash,created_at")
+      .select("id,guest_name,created_at")
       .eq("event_id", eventId)
       .order("created_at", { ascending: false });
     if (error) throw error;
