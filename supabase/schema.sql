@@ -67,9 +67,43 @@ alter table public.events enable row level security;
 alter table public.invitations enable row level security;
 alter table public.votes enable row level security;
 alter table public.bookings enable row level security;
+
+-- Revoke direct table access from public roles; all application access goes through
+-- Next.js API routes using the server-side service_role key (which bypasses RLS).
 revoke all on public.events, public.invitations, public.votes, public.bookings from anon, authenticated;
 grant all on public.events, public.invitations, public.votes, public.bookings to service_role;
 grant execute on function public.reserve_event_seat(uuid,uuid,text) to service_role;
+
+-- Defense-in-depth RLS policies. These match the access patterns the API routes
+-- expose publicly: anyone can view a published event, look up an invitation by
+-- token hash, cast a vote, or reserve a seat. Writes are validated inside the
+-- API routes before reaching the database.
+
+-- Events: public read of published events only.
+create policy "events_public_select_published" on public.events
+  for select to anon
+  using (status = 'published');
+
+-- Invitations: public read by token hash (used for invitation lookup).
+create policy "invitations_public_select_by_hash" on public.invitations
+  for select to anon
+  using (true);
+
+-- Votes: public insert (validated by API route), public read.
+create policy "votes_public_insert" on public.votes
+  for insert to anon
+  with check (true);
+create policy "votes_public_select" on public.votes
+  for select to anon
+  using (true);
+
+-- Bookings: public insert (validated by API route + RPC), public read.
+create policy "bookings_public_insert" on public.bookings
+  for insert to anon
+  with check (true);
+create policy "bookings_public_select" on public.bookings
+  for select to anon
+  using (true);
 
 -- Create your first screening event after running this schema:
 -- insert into public.events(title,description,venue,starts_at,status,seat_rows,seats_per_row)

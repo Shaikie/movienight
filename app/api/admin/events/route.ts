@@ -1,6 +1,20 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/supabase-admin";
 import { isAdmin } from "@/lib/tokens";
+
+export async function GET() {
+  if (!await isAdmin()) return NextResponse.json({ error: "Admin access required." }, { status: 401 });
+  try {
+    const db = getAdminDb();
+    const { data, error } = await db
+      .from("events")
+      .select("id,title,description,venue,starts_at,status,seat_rows,seats_per_row,selected_movie_id,created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return NextResponse.json({ events: data ?? [] });
+  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to load events." }, { status: 500 }); }
+}
+
 export async function POST(request: Request) {
   if (!await isAdmin()) return NextResponse.json({ error: "Admin access required." }, { status: 401 });
   const body = await request.json().catch(() => ({}));
