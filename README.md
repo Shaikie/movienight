@@ -2,61 +2,67 @@
 
 A private movie-night platform built with Next.js 16, React, TypeScript, Tailwind CSS, Supabase and TMDB.
 
-## Features
+## Application pages
 
-- Cinematic, responsive guest experience
-- Movie discovery through TMDB (curated sample titles work without a TMDB key)
-- Private, unique invitation links with hashed tokens
-- One vote per invitation, with the ability to update a vote
-- Standard cinema seating with server-side seat validation
-- Atomic seat reservations to prevent two guests booking the same seat
-- Host dashboard with password-protected event publishing and invitation generation
-- Server-only Supabase service-role access; no database credentials are exposed to the browser
+### Guest experience
+- `/` — cinematic landing page and upcoming screening
+- `/movies` — searchable movie catalogue and genre filters
+- `/vote` — invitation-based movie voting
+- `/seats` — cinema seating plan and reservations
+- `/invite/[token]` — personal guest invitation
 
-## Requirements
+### Host workspace
+- `/host` — overview and activity summary
+- `/host/event` — screening details and seat layout
+- `/host/invitations` — create and copy guest invitation links
+- `/host/votes` — vote tally
+- `/host/settings` — workspace information and demo data controls
 
-- Node.js 20.9+
-- A Supabase project
-- Optional TMDB API key for live movie search
+## Demo mode (no Supabase required)
 
-## Local setup
+The interface can be explored before connecting Supabase:
+1. Run `npm install`.
+2. Run `npm run dev`.
+3. Open http://localhost:3000.
+4. Open **Host** and select **Enter demo mode**.
+5. Create a screening, add guest names and generate local demo invitations.
+6. Open an invitation link in the same browser to test voting and seat selection.
 
-1. Install dependencies: `npm install`
-2. Copy `.env.example` to `.env.local` and fill in the required values.
-3. In Supabase SQL Editor, run the complete `supabase/schema.sql` script.
-4. Start the app: `npm run dev`
-5. Open http://localhost:3000 and select **Host** to sign in and publish your screening.
-6. Add guest names in the host dashboard. Send each generated invitation URL privately.
+Demo event data, guest invitations, votes and reservations are stored in that browser's local storage. They are not shared across devices or browsers and are not production-secure. Demo mode is for UI and workflow testing only.
 
-Generate a strong session secret with:
+## Production setup
 
-```bash
-openssl rand -base64 48
-```
+1. Create a Supabase project.
+2. Copy `.env.example` to `.env.local` and configure the required environment variables.
+3. Run `supabase/schema.sql` in the Supabase SQL Editor.
+4. Configure a TMDB API key if live movie discovery is required.
+5. Run `npm run build` and then `npm start`.
 
 ## Environment variables
 
 | Variable | Required | Purpose |
 |---|---|---|
-| NEXT_PUBLIC_SUPABASE_URL | Yes | Supabase project URL |
-| SUPABASE_SERVICE_ROLE_KEY | Yes | Server-only database access |
-| ADMIN_PASSWORD | Yes | Host dashboard password |
-| ADMIN_SESSION_SECRET | Yes | Signs the HTTP-only admin session cookie |
+| NEXT_PUBLIC_SUPABASE_URL | Yes for production data | Supabase project URL |
+| SUPABASE_SERVICE_ROLE_KEY | Yes for production data | Server-only database access |
+| ADMIN_PASSWORD | Yes for production host access | Host dashboard password |
+| ADMIN_SESSION_SECRET | Yes for production host access | Signs the HTTP-only admin session cookie |
 | TMDB_API_KEY | No | Live movie discovery and posters |
 
 Never commit `.env.local` or expose the Supabase service-role key in client-side code.
 
+## Production functionality
+
+- Private guest invitations with cryptographically random tokens and SHA-256 token hashes
+- One vote per invitation, with the ability to update a vote
+- Standard cinema seating and server-side seat validation
+- Atomic seat reservations to prevent concurrent double-booking
+- Password-protected host operations
+- Server-only Supabase service-role access
+- Responsive guest and host interfaces
+
 ## Deploy to Vercel
 
-Import this repository into Vercel, configure the environment variables above for the Production and Preview environments, deploy, and run the SQL schema against the Supabase project. The app uses Next.js route handlers and is compatible with Vercel's Node.js runtime.
-
-## Security notes
-
-- Guest invitation tokens are generated with cryptographically secure randomness. Only SHA-256 hashes are stored in the database.
-- Guest requests are validated on the server against the invitation and event.
-- Database tables have RLS enabled and deny direct anon/authenticated access. Server routes use the service-role key.
-- Seat reservations are performed through a database function and a unique partial index, so concurrent requests cannot reserve the same seat.
-- The admin session is an HTTP-only, SameSite=Lax cookie with an HMAC signature and 12-hour expiry.
+Import this repository into Vercel, configure the environment variables above for the Production and Preview environments, deploy, and run the SQL schema against the Supabase project.
 
 ## Movie data attribution
 
