@@ -24,11 +24,13 @@ export default function MovieNight({ invitationToken = "" }: { invitationToken?:
   const [eventVenue,setEventVenue]=useState("Private screening room");
   const [eventDate,setEventDate]=useState("");
   const [eventDescription,setEventDescription]=useState("One night. One screen. Endless memories.");
+  const [currentYear,setCurrentYear]=useState<number | null>(null);
 
   const loadEvent=async()=>{const r=await fetch("/api/event");const d=await r.json();if(d.event){setEvent(d.event);setEventTitle(d.event.title);setEventVenue(d.event.venue);setEventDescription(d.event.description);}};
   const loadMovies=async(q="")=>{const r=await fetch("/api/movies"+(q?"?q="+encodeURIComponent(q):""));const d=await r.json();setMovies(d.results??[]);};
   const loadBookings=async(id:string)=>{const r=await fetch("/api/bookings?eventId="+id);const d=await r.json();setBookings(d.bookings??[]);};
   useEffect(()=>{loadEvent();loadMovies();},[]);
+  useEffect(()=>{setCurrentYear(new Date().getFullYear());},[]);
   useEffect(()=>{if(event?.id)loadBookings(event.id);},[event?.id]);
   useEffect(()=>{if(invitationToken)setToken(invitationToken);},[invitationToken]);
   const availableSeats=useMemo(()=>{if(!event)return[];return Array.from({length:event.seat_rows},(_,r)=>Array.from({length:event.seats_per_row},(_,s)=>String.fromCharCode(65+r)+"-"+(s+1))).flat();},[event]);
@@ -62,7 +64,7 @@ export default function MovieNight({ invitationToken = "" }: { invitationToken?:
 
       {tab==="admin"&&<section className="section"><div className="section-head"><div><div className="eyebrow">Behind the curtain</div><h2>Host control room.</h2></div><span className="badge">Administrator</span></div>{!admin?<div className="panel" style={{maxWidth:500}}><Crown color="#e5c58a"/><h3 className="serif" style={{fontSize:25}}>Welcome, host.</h3><p className="muted">Sign in with the admin password configured in your deployment environment.</p><input className="field" type="password" style={{width:"100%",margin:"8px 0 15px"}} placeholder="Admin password" value={adminPassword} onChange={e=>setAdminPassword(e.target.value)}/><button className="btn" disabled={busy} onClick={login}>Unlock host controls</button></div>:<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:18}}><div className="panel"><h3 className="serif" style={{fontSize:23}}>Screening details</h3><p className="muted">Create and publish the event guests will see.</p><label className="muted">Event title</label><input className="field" style={{width:"100%",margin:"6px 0 12px"}} value={eventTitle} onChange={e=>setEventTitle(e.target.value)}/><label className="muted">Venue</label><input className="field" style={{width:"100%",margin:"6px 0 12px"}} value={eventVenue} onChange={e=>setEventVenue(e.target.value)}/><label className="muted">Date and time</label><input className="field" type="datetime-local" style={{width:"100%",margin:"6px 0 12px"}} value={eventDate} onChange={e=>setEventDate(e.target.value)}/><label className="muted">Description</label><input className="field" style={{width:"100%",margin:"6px 0 16px"}} value={eventDescription} onChange={e=>setEventDescription(e.target.value)}/><button className="btn" disabled={busy||!eventDate} onClick={createEvent}>{event?"Update screening":"Publish screening"}</button></div><div className="panel"><h3 className="serif" style={{fontSize:23}}>Guest invitations</h3><p className="muted">Add one guest name per line. Each person receives a unique invite link.</p><textarea className="field" rows={7} style={{width:"100%",resize:"vertical",margin:"8px 0 14px"}} placeholder={"Amina\nDaniel\nNeema"} value={inviteNames} onChange={e=>setInviteNames(e.target.value)}/><button className="btn" disabled={busy||!event} onClick={createInvites}>Generate invitations</button>{inviteLinks.map(i=><div key={i.url} style={{borderTop:"1px solid #383039",paddingTop:10,marginTop:12,fontSize:12}}><strong>{i.name}</strong><input readOnly className="field" style={{width:"100%",marginTop:6,fontSize:11}} value={i.url} onFocus={e=>e.currentTarget.select()}/></div>)}</div></div>}</section>}
 
-      <footer className="footer"><span>© {new Date().getFullYear()} MOVIENIGHT · One Night. One Screen. Endless Memories.</span><span>Made for the people, not the crowd.</span></footer>
+      <footer className="footer"><span>© {currentYear ?? "MOVIENIGHT"} MOVIENIGHT · One Night. One Screen. Endless Memories.</span><span>Made for the people, not the crowd.</span></footer>
     </div>
   </main>;
 }
