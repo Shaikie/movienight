@@ -53,7 +53,9 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
   setBookings(readStore<Record<string,string>>("bookings",{}));
   setVotes(readStore<Record<string,number>>("votes",{}));
   setHostReady(readStore<boolean>("host",false));
-  if(invitationToken)setToken(invitationToken);\n  const queryToken=new URLSearchParams(window.location.search).get("token");\n  if(queryToken)setToken(queryToken);
+  if(invitationToken)setToken(invitationToken);
+  const queryToken=new URLSearchParams(window.location.search).get("token");
+  if(queryToken)setToken(queryToken);
   fetch("/api/movies").then(r=>r.ok?r.json():null).then(d=>{
     if(d?.results?.length){setMovies(d.results.map((m:Movie)=>({...m,genre:m.genre||"Featured"})));}
   }).catch(()=>{});
