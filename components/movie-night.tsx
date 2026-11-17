@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
-  ArrowRight, CalendarDays, Check, ChevronDown, Clapperboard, Clock3, Film,
+  ArrowRight, CalendarDays, Check, Clapperboard, Clock3, Film,
   Heart, Home, LayoutDashboard, LogOut, MapPin, Menu, Plus, Search,
   Settings, ShieldCheck, Sparkles, Ticket, Users, Vote, X
 } from "lucide-react";
@@ -35,7 +35,6 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
  const [bookings,setBookings]=useState<Record<string,string>>({});
  const [votes,setVotes]=useState<Record<string,number>>({});
  const [token,setToken]=useState(invitationToken);
- const [guestName,setGuestName]=useState("");
  const [query,setQuery]=useState("");
  const [genre,setGenre]=useState("All");
  const [selectedSeat,setSelectedSeat]=useState("");
