@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowRight, CalendarDays, Check, ChevronDown, Clapperboard, Clock3, Film,
   Heart, Home, LayoutDashboard, LogOut, MapPin, Menu, Plus, Search,
@@ -75,7 +75,7 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
  };
  const copyInvite=(inviteItem:Invite)=>{const url=window.location.origin+"/invite/"+inviteItem.token;navigator.clipboard?.writeText(url);flash("Invitation link copied.");};
  const castVote=(movieId:number)=>{if(!token){flash("Open your personal invitation link to vote.");return;}const next={...votes,[token]:movieId};setVotes(next);saveStore("votes",next);flash("Your demo vote has been saved.");};
- const reserveSeat=()=>{if(!token){flash("Open your personal invitation link to reserve a seat.");return;}if(!selectedSeat)return;const next={...bookings,[selectedSeat]:token};setBookings(next);saveStore("bookings",next);setSelectedSeat("");flash("Seat "+selectedSeat+" reserved in demo mode.");};
+ const reserveSeat=()=>{if(!token){flash("Open your personal invitation link to reserve a seat.");return;}if(Object.values(bookings).includes(token)){flash("This invitation already has a reserved seat.");return;}if(!selectedSeat)return;const next={...bookings,[selectedSeat]:token};setBookings(next);saveStore("bookings",next);setSelectedSeat("");flash("Seat "+selectedSeat+" reserved in demo mode.");};
  const hostLogin=()=>{setHostReady(true);saveStore("host",true);flash("Demo host access enabled on this browser.");};
  const logout=()=>{setHostReady(false);saveStore("host",false);flash("Signed out of demo host mode.");};
  const posterUrl=(path:string|null)=>path?.startsWith("/")?"https://image.tmdb.org/t/p/w500"+path:path||"";
@@ -127,6 +127,6 @@ function MovieCard({movie,posterUrl,onAction,action="Explore film",selected=fals
 }
 function PageHeading({kicker,title,desc}:{kicker:string;title:string;desc:string}){return <div className="mn-page-heading"><div className="mn-kicker">{kicker}</div><h1>{title}</h1><p>{desc}</p></div>;}
 function EmptyState({title,text}:{title:string;text:string}){return <div className="mn-empty"><Film size={25}/><strong>{title}</strong><span>{text}</span></div>;}
-function Stat({label,value,icon}:{label:string;value:number;icon:React.ReactNode}){return <div className="mn-stat"><span>{icon}</span><strong>{value}</strong><small>{label}</small></div>;}
+function Stat({label,value,icon}:{label:string;value:number;icon:ReactNode}){return <div className="mn-stat"><span>{icon}</span><strong>{value}</strong><small>{label}</small></div>;}
 function QuickLink({href,title,text,icon}:{href:string;title:string;text:string;icon:React.ReactNode}){return <Link href={href} className="mn-quick-link"><span>{icon}</span><strong>{title}</strong><small>{text}</small><ArrowRight size={15}/></Link>;}
-function Field({label,children,wide=false}:{label:string;children:React.ReactNode;wide?:boolean}){return <label className={"mn-field "+(wide?"wide":"")}>{label}{children}</label>;}
+function Field({label,children,wide=false}:{label:string;children:ReactNode;wide?:boolean}){return <label className={"mn-field "+(wide?"wide":"")}>{label}{children}</label>;}
