@@ -36,7 +36,7 @@ export async function POST(request:Request){
    const {error:statusError}=await db.from("invitations").update({approval_status:"pending",invitation_requested:false}).eq("id",invite.id);
    if(statusError)return NextResponse.json({error:statusError.message},{status:500});
   }
-  return inviteError?NextResponse.json({error:inviteError.message},{status:500}):NextResponse.json({ok:true,winner});
+  return NextResponse.json({ok:true,winner});
  }
  if(action==="open-reservations"&&event.phase==="invitation_requests"){
   const {error}=await db.from("events").update({phase:"reservations"}).eq("id",eventId).eq("phase","invitation_requests");
