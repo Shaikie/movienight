@@ -1,0 +1,1 @@
+alter table public.invitations add column if not exists user_id uuid references auth.users(id) on delete set null; create unique index if not exists invitations_event_user_unique on public.invitations(event_id,user_id) where user_id is not null; create index if not exists invitations_user_lookup on public.invitations(user_id);
