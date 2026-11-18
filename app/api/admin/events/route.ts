@@ -39,7 +39,7 @@ function validateEvent(body: EventInput) {
   };
 }
 
-const eventColumns = "id,title,description,venue,starts_at,status,seat_rows,seats_per_row,selected_movie_id,created_at";
+const eventColumns = "id,title,description,venue,starts_at,status,seat_rows,seats_per_row,selected_movie_id,phase,winning_movie_title,winning_movie_poster,created_at";
 
 export async function GET() {
   if (!await isAdmin()) {
