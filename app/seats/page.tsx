@@ -1,2 +1,2 @@
-import MovieNight from "@/components/movie-night";
-export default function SeatsPage(){return <MovieNight page="seats"/>;}
+import CoictFlow from "@/components/coict-flow";
+export default function SeatsPage(){return <CoictFlow page="seats"/>;}
