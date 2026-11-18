@@ -5,6 +5,7 @@ alter table public.events add column if not exists winning_movie_title text;
 alter table public.events add column if not exists winning_movie_poster text;
 alter table public.invitations add column if not exists approval_status text not null default 'approved'
  check (approval_status in ('pending','approved','rejected'));
+alter table public.invitations add column if not exists invitation_requested boolean not null default false;
 create table if not exists public.movie_suggestions (
  id uuid primary key default gen_random_uuid(),
  event_id uuid not null references public.events(id) on delete cascade,
@@ -48,6 +49,9 @@ grant all on public.movie_suggestions,public.snack_products,public.snack_orders 
 update public.events set phase='reservations' where status='published' and
  (exists(select 1 from public.bookings b where b.event_id=events.id) or
   exists(select 1 from public.votes v where v.event_id=events.id));
+-- A legacy booking is already an approved invitation; preserve that state.
+update public.invitations set invitation_requested=true
+where exists(select 1 from public.bookings where bookings.invitation_id=invitations.id and bookings.status='confirmed');
 -- Support two seats per guest without dropping the unique constraint on invitation:
 -- each invitation may own one booking row per seat, with a partial unique index on active seats.
 alter table public.bookings drop constraint if exists bookings_event_id_invitation_id_key;
