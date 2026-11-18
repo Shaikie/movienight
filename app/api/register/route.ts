@@ -18,5 +18,10 @@ export async function POST(request:Request) {
   const {error}=await db.rpc("register_movie_night_guest",{p_event_id:event.id,p_name:name,p_email:email,p_phone:phone,p_token_hash:hashToken(token)});
   if(error)return NextResponse.json({error:error.message},{status:409});
   return NextResponse.json({url:new URL("/invite/"+token,request.url).toString(),token},{status:201,headers:{"Cache-Control":"no-store"}});
- }catch{return NextResponse.json({error:"Registration is temporarily unavailable."},{status:500});}
+ }catch(error){
+  console.error("MovieNight registration failed:",error);
+  const message=error instanceof Error?error.message:"Unknown server error";
+  const configurationError=message.includes("Supabase is not configured");
+  return NextResponse.json({error:configurationError?"Supabase environment variables are missing. Check the server configuration.":"Registration could not connect to the database. Check the server terminal for the underlying error."},{status:500});
+ }
 }
