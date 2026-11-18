@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
 @import "tailwindcss";
 :root{color-scheme:dark;--bg:#09090b;--surface:#111014;--surface-2:#18151a;--line:#30282f;--muted:#a69ba3;--gold:#e5c58a;--wine:#9d3348;--cream:#f6efe6;--soft:#d0c4ca}
@@ -208,7 +209,6 @@ button:disabled{cursor:not-allowed;opacity:.42}
 
 
 /* MOVIENIGHT CINEMATIC DESIGN SYSTEM */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 :root{--bg:#09090d;--surface:#141218;--surface-2:#1e1921;--line:rgba(255,255,255,.08);--muted:#a9a2ac;--gold:#d4af37;--wine:#8b1e35;--cream:#f7f4f1;--soft:#a9a2ac}
 body{font-family:'Inter',sans-serif}
 h1,h2,h3,h4{letter-spacing:-.035em}
