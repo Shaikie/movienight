@@ -7,7 +7,7 @@ export async function GET(request:Request){
  if(!eventId)return NextResponse.json({error:"Event required."},{status:400});
  const db=getAdminDb();
  const [i,b,r]=await Promise.all([
-  db.from("invitations").select("id,guest_name,approval_status,created_at").eq("event_id",eventId).order("created_at",{ascending:false}),
+  db.from("invitations").select("id,guest_name,approval_status,invitation_requested,created_at").eq("event_id",eventId).order("created_at",{ascending:false}),
   db.from("bookings").select("invitation_id,seat_code,status").eq("event_id",eventId).eq("status","confirmed"),
   db.from("guest_registrations").select("invitation_id,full_name,email,phone").eq("event_id",eventId)
  ]);
@@ -27,6 +27,8 @@ export async function PATCH(request:Request){
  if(!invite)return NextResponse.json({error:"Guest not found."},{status:404});
  const {data:event}=await db.from("events").select("phase").eq("id",invite.event_id).single();
  if(!["invitation_requests","reservations"].includes(event?.phase??""))return NextResponse.json({error:"Invitation decisions are not open."},{status:409});
+ const {data:requested}=await db.from("invitations").select("invitation_requested").eq("id",invitationId).single();
+ if(status==="approved"&&!requested?.invitation_requested)return NextResponse.json({error:"Guest has not requested an invitation."},{status:409});
  const {count}=await db.from("bookings").select("id",{head:true,count:"exact"}).eq("invitation_id",invitationId).eq("status","confirmed");
  if(count&&status==="rejected")return NextResponse.json({error:"Cannot reject a guest with confirmed seats."},{status:409});
  const {error}=await db.from("invitations").update({approval_status:status}).eq("id",invitationId);
