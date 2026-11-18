@@ -11,9 +11,11 @@ export default function PwaInstall(){
  useEffect(()=>{
   if("serviceWorker" in navigator)void navigator.serviceWorker.register("/sw.js").catch(()=>{});
   const standalone=window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && (navigator as Navigator & {standalone?:boolean}).standalone===true);
-  setInstalled(standalone);
-  setIos(/iPhone|iPad|iPod/i.test(navigator.userAgent));
-  if(standalone)return;
+  setTimeout(()=>setIos(/iPhone|iPad|iPod/i.test(navigator.userAgent)),0);
+  if(standalone){
+    setTimeout(()=>setInstalled(true),0);
+    return;
+  }
   const onPrompt=(event:Event)=>{event.preventDefault();setPrompt(event as InstallEvent);setVisible(true);};
   const onInstalled=()=>{setInstalled(true);setVisible(false);setPrompt(null);};
   window.addEventListener("beforeinstallprompt",onPrompt);

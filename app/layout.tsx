@@ -10,5 +10,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body suppressHydrationWarning>{children}<PwaInstall /></body></html>;
+  return (
+    <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#09090d" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="MovieNight" />
+        <link rel="apple-touch-icon" href="/apple-icon" />
+      </head>
+      <body suppressHydrationWarning>{children}<PwaInstall /></body>
+    </html>
+  );
 }

@@ -38,7 +38,12 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
   const [invites,setInvites]=useState<Invite[]>([]);
   const [bookings,setBookings]=useState<Record<string,string>>({});
   const [votes,setVotes]=useState<Record<string,number>>({});
-  const [token,setToken]=useState(invitationToken);
+  const [token,setToken]=useState(()=>{
+    if(typeof window!=="undefined"){
+      return new URLSearchParams(window.location.search).get("token")||invitationToken;
+    }
+    return invitationToken;
+  });
   const [query,setQuery]=useState("");
   const [debouncedQuery,setDebouncedQuery]=useState("");
   const [moviePage,setMoviePage]=useState(1);
@@ -46,7 +51,10 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
   const [category,setCategory]=useState("popular");
   const [moviesLoading,setMoviesLoading]=useState(false);
   const [moviesError,setMoviesError]=useState("");
-  const [shareUrl,setShareUrl]=useState("");
+  const [shareUrl,setShareUrl]=useState(()=>{
+    if(typeof window!=="undefined")return window.location.origin+"/register";
+    return "";
+  });
   const [genre,setGenre]=useState("All");
   const [selectedSeat,setSelectedSeat]=useState("");
   const [inviteNames,setInviteNames]=useState("");
@@ -59,9 +67,7 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
 
   const flash=(text:string)=>{setNotice(text);window.setTimeout(()=>setNotice(""),4000);};
 
-  useEffect(()=>{setToken(new URLSearchParams(window.location.search).get("token")||invitationToken);setShareUrl(window.location.origin+"/register");},[invitationToken]);
   useEffect(()=>{const timer=window.setTimeout(()=>setDebouncedQuery(query.trim()),350);return()=>window.clearTimeout(timer);},[query]);
-  useEffect(()=>{setMoviePage(1);},[debouncedQuery,category]);
   useEffect(()=>{
     let cancelled=false;
     (async()=>{
@@ -78,7 +84,7 @@ export default function MovieNight({page="home",invitationToken=""}:{page?:Page;
     let cancelled=false;
     const params=new URLSearchParams({page:String(moviePage),category});
     if(debouncedQuery)params.set("q",debouncedQuery);
-    setMoviesLoading(true);setMoviesError("");
+    setTimeout(()=>{setMoviesLoading(true);setMoviesError("");},0);
     apiJSON<{results:Movie[];total_pages:number}>("/api/movies?"+params.toString()).then(data=>{if(!cancelled){setMovies(data.results);setTotalPages(data.total_pages||1);}}).catch(err=>{if(!cancelled)setMoviesError(err instanceof Error?err.message:"Unable to load movies.");}).finally(()=>{if(!cancelled)setMoviesLoading(false);});
     return()=>{cancelled=true;};
   },[moviePage,category,debouncedQuery]);

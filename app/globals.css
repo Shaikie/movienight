@@ -287,8 +287,11 @@ html,body{max-width:100%;overflow-x:clip}
 .mn-token-entry input{flex:1 1 230px;min-width:0}
 .mn-seat-grid{overflow-x:auto;max-width:100%;padding:12px 2px}
 .mn-seat{min-width:32px}
-.mn-menu-toggle{display:none}
-.mn-mobile-nav{display:none}
+/* Mobile menu toggle shown on narrow screens; overridden by design-system layers where intentional */
+@media(max-width:1000px){
+  .mn-menu-toggle{display:grid}
+  .mn-mobile-nav{display:none}
+}
 .mn-account-shell{max-width:1080px;margin:clamp(24px,5vw,65px) auto;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);border:1px solid rgba(255,255,255,.1);border-radius:22px;overflow:hidden;background:#141218;box-shadow:0 24px 75px rgba(0,0,0,.24)}
 .mn-account-aside{padding:clamp(26px,5vw,64px);background:linear-gradient(155deg,#361823,#161219 75%);display:flex;flex-direction:column;justify-content:space-between;gap:55px}
 .mn-account-aside h2{font:600 clamp(30px,4vw,52px)/1.1 'Space Grotesk',sans-serif;margin:18px 0}
