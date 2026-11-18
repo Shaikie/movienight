@@ -27,7 +27,16 @@ export async function POST(request:Request){
    return NextResponse.json({error:"Voting is tied. Select one of the tied movies to decide the winner.",tied:leaders},{status:409});
   const winner=leaders.find(m=>m.movie_id===movieId)??leaders[0];
   const {error}=await db.from("events").update({phase:"invitation_requests",selected_movie_id:winner.movie_id,winning_movie_title:winner.movie_title,winning_movie_poster:winner.poster_path}).eq("id",eventId).eq("phase","voting");
-  return error?NextResponse.json({error:error.message},{status:500}):NextResponse.json({ok:true,winner});
+  if(error)return NextResponse.json({error:error.message},{status:500});
+  const {data:reserved}=await db.from("bookings").select("invitation_id").eq("event_id",eventId).eq("status","confirmed");
+  const protectedIds=new Set((reserved??[]).map(x=>x.invitation_id));
+  const {data:invitations}=await db.from("invitations").select("id").eq("event_id",eventId);
+  for(const invite of invitations??[]){
+   if(protectedIds.has(invite.id))continue;
+   const {error:statusError}=await db.from("invitations").update({approval_status:"pending",invitation_requested:false}).eq("id",invite.id);
+   if(statusError)return NextResponse.json({error:statusError.message},{status:500});
+  }
+  return inviteError?NextResponse.json({error:inviteError.message},{status:500}):NextResponse.json({ok:true,winner});
  }
  if(action==="open-reservations"&&event.phase==="invitation_requests"){
   const {error}=await db.from("events").update({phase:"reservations"}).eq("id",eventId).eq("phase","invitation_requests");
