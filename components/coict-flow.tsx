@@ -20,7 +20,13 @@ async function request<T>(path:string,method="GET",body?:unknown):Promise<T>{
 const poster=(path:string|null)=>path?"https://image.tmdb.org/t/p/w500"+path:"";
 const phaseLabel:Record<string,string>={suggestions:"Movie suggestions",voting:"Voting open",invitation_requests:"Invitation requests",reservations:"Seat reservations",completed:"Completed"};
 export default function CoictFlow({page="home",invitationToken=""}:{page?:Page;invitationToken?:string}){
- const [event,setEvent]=useState<Event|null>(null),[token,setToken]=useState(invitationToken);
+ const [event,setEvent]=useState<Event|null>(null),[token,setToken]=useState(()=>{
+    if(typeof window!=="undefined"){
+      const params=new URLSearchParams(window.location.search);
+      return invitationToken||params.get("token")||sessionStorage.getItem("movienight_token")||"";
+    }
+    return invitationToken;
+  });
  const [studentLoggedIn,setStudentLoggedIn]=useState(false);
  const [eligibility,setEligibility]=useState<{registered:boolean;approval_status:string|null;requested:boolean;seats:string[]}|null>(null);
  const [admin,setAdmin]=useState(false),[password,setPassword]=useState(""),[message,setMessage]=useState("");
@@ -39,10 +45,17 @@ export default function CoictFlow({page="home",invitationToken=""}:{page?:Page;i
  const host=page.startsWith("host");
  useEffect(()=>{try{const sb=browserSupabase();void sb.auth.getSession().then(({data})=>setStudentLoggedIn(!!data.session));const {data:{subscription}}=sb.auth.onAuthStateChange((_event,session)=>setStudentLoggedIn(!!session));return()=>subscription.unsubscribe();}catch{}},[]);
  const flash=(m:string)=>setMessage(m);
- useEffect(()=>{setShareUrl(window.location.origin+"/register");const params=new URLSearchParams(window.location.search);setToken(invitationToken||params.get("token")||sessionStorage.getItem("movienight_token")||"");},[invitationToken]);
+ useEffect(()=>{
+    setTimeout(()=>setShareUrl(window.location.origin+"/register"),0);
+  },[]);
  useEffect(()=>{if(token)sessionStorage.setItem("movienight_token",token);},[token]);
  useEffect(()=>{request<{event:Event|null}>("/api/event").then(x=>{setEvent(x.event);if(x.event)setEventForm({title:x.event.title,venue:x.event.venue,description:x.event.description,starts_at:new Date(x.event.starts_at).toISOString().slice(0,16),seat_rows:x.event.seat_rows,seats_per_row:x.event.seats_per_row});}).catch(e=>flash(e.message));},[refresh]);
- useEffect(()=>{if(!studentLoggedIn){setEligibility(null);return;}let active=true;request<{registered?:boolean;invitation?:{approval_status:string;requested:boolean};seats?:{seat_code:string}[]}>("/api/student/dashboard").then(data=>{if(active)setEligibility({registered:!!data.registered,approval_status:data.invitation?.approval_status??null,requested:!!data.invitation?.requested,seats:(data.seats??[]).map(x=>x.seat_code)});}).catch(()=>{if(active)setEligibility(null);});return()=>{active=false;};},[studentLoggedIn,event?.id,refresh]);
+ useEffect(()=>{
+    let active=true;
+    if(!studentLoggedIn){setTimeout(()=>setEligibility(null),0);return;}
+    request<{registered?:boolean;invitation?:{approval_status:string;requested:boolean};seats?:{seat_code:string}[]}>("/api/student/dashboard").then(data=>{if(active)setEligibility({registered:!!data.registered,approval_status:data.invitation?.approval_status??null,requested:!!data.invitation?.requested,seats:(data.seats??[]).map(x=>x.seat_code)});}).catch(()=>{if(active)setEligibility(null);});
+    return()=>{active=false;};
+  },[studentLoggedIn,event?.id,refresh]);
  useEffect(()=>{request<{admin:boolean}>("/api/admin/session").then(x=>setAdmin(x.admin)).catch(()=>{});},[]);
  useEffect(()=>{if(!event)return;const id=encodeURIComponent(event.id);
  request<{suggestions:Suggestion[]}>("/api/suggestions?eventId="+id).then(x=>setSuggestions(x.suggestions)).catch(()=>{});

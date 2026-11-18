@@ -14,7 +14,7 @@ export default function StudentAccount({mode}:{mode:"login"|"register"|"dashboar
    const json=await response.json();if(!response.ok)throw Error(json.error);setDashboard(json);
   }catch(e){setMessage(e instanceof Error?e.message:"Could not load dashboard");}
  }
- useEffect(()=>{if(mode==="dashboard")void load();},[mode]);
+ useEffect(()=>{if(mode==="dashboard"){setTimeout(()=>void load(),0);}},[mode]);
  async function submit(){
   setBusy(true);setMessage("");
   try{const sb=browserSupabase();
