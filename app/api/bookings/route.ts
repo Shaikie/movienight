@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/supabase-admin";
-import { hashToken } from "@/lib/tokens";
+import { resolveStudentInvite } from "@/lib/student-auth";
 export async function GET(request: Request) {
   const eventId = new URL(request.url).searchParams.get("eventId");
   if (!eventId) return NextResponse.json({ error: "eventId is required." }, { status: 400 });
@@ -13,9 +13,9 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   const { token, eventId, seatCode, seatCodes } = await request.json().catch(() => ({}));
-  if (typeof token !== "string" || !eventId || (!Array.isArray(seatCodes) && typeof seatCode !== "string")) return NextResponse.json({ error: "Invitation, event and seat are required." }, { status: 400 });
+  if (!eventId || (!Array.isArray(seatCodes) && typeof seatCode !== "string")) return NextResponse.json({ error: "Invitation, event and seat are required." }, { status: 400 });
   const db = getAdminDb();
-  const { data: invite } = await db.from("invitations").select("id,event_id").eq("token_hash", hashToken(token)).eq("event_id", eventId).maybeSingle();
+  const invite = await resolveStudentInvite(request,eventId,token);
   if (!invite) return NextResponse.json({ error: "This invitation is invalid for this event." }, { status: 404 });
   const selected = Array.isArray(seatCodes) ? seatCodes : [seatCode];
   if(selected.length<1||selected.length>2||selected.some(x=>typeof x!=="string"))return NextResponse.json({error:"Choose one or two seats."},{status:400});
