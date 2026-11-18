@@ -1,0 +1,1 @@
+import StudentAccount from "@/components/student-account";export default function Page(){return <StudentAccount mode="register"/>;}
