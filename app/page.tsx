@@ -1,2 +1,2 @@
-import MovieNight from "@/components/movie-night";
-export default function Home() { return <MovieNight />; }
+import CoictFlow from "@/components/coict-flow";
+export default function Home() { return <CoictFlow />; }
