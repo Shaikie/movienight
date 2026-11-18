@@ -664,3 +664,47 @@ body{background:#f5f5f6;color:#18191e;font-family:'Inter',sans-serif}
  .mn-seat-grid{min-width:max-content}
 }
 @media(prefers-reduced-motion:reduce){.mn-bottom-nav a{transition:none}}
+
+
+/* MovieNight 2026: shared cinematic tokens and mobile layout corrections */
+:root{
+ --bg:#09090f;--surface:#111119;--surface-2:#17151f;
+ --line:#302a35;--muted:#a8a5af;--gold:#d5ac65;
+ --wine:#811d36;--cream:#f5f2ed;--soft:#a8a5af;
+ --mn-success:#35b58a;--mn-error:#e85c64;
+ --mn-radius-sm:12px;--mn-radius-card:20px;
+ --mn-motion-fast:160ms;--mn-motion-base:240ms;
+}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--cream);font-family:'Inter',system-ui,sans-serif}
+.mn-app{background:var(--bg);min-width:0}
+.mn-button,.mn-booking-primary{background:var(--wine);border-color:var(--wine);color:#fff;border-radius:999px;transition:background var(--mn-motion-fast),transform var(--mn-motion-fast)}
+.mn-button:hover,.mn-booking-primary:hover{background:#a12748;border-color:#a12748}
+.mn-button-outline{background:transparent;color:var(--cream);border-color:var(--line)}
+.mn-button-outline:hover{background:var(--surface-2);color:var(--cream)}
+.mn-kicker{color:var(--gold)}
+.mn-bottom-nav a[aria-current="page"]{color:var(--gold)!important;background:transparent!important}
+.mn-bottom-nav a[aria-current="page"]::before{content:"";position:absolute;top:1px;width:24px;height:3px;border-radius:99px;background:var(--wine)}
+.mn-bottom-nav a{position:relative}
+.mn-host-tabs a[aria-current="page"]{background:var(--wine)!important;color:#fff!important}
+.mn-install-launcher{display:none!important}
+.mn-install-single{position:fixed!important;z-index:95;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(480px,calc(100vw - 28px));display:flex;align-items:center;gap:12px;padding:14px;background:#17151f;border:1px solid #302a35;border-radius:18px;box-shadow:0 14px 50px #0009;color:#f5f2ed}
+.mn-install-single .mn-install-copy{flex:1;min-width:0}
+.mn-install-single p{margin:4px 0 0;font-size:12px;color:#a8a5af}
+.mn-install-single .mn-install-close{position:static;flex:none}
+.mn-install-single .mn-button{flex:none}
+:where(a,button,input,textarea,select):focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@media(max-width:760px){
+ .mn-container,.mn-header-inner{width:calc(100% - 32px);max-width:100%}
+ .mn-app,.mn-page,.mn-seat-layout,.mn-host-layout{min-width:0;max-width:100%}
+ .mn-page-heading h1{font-size:clamp(29px,8vw,46px);overflow-wrap:anywhere}
+ .mn-seat-main{max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+ .mn-seat-grid{min-width:max-content}
+ .mn-install-single{bottom:calc(84px + env(safe-area-inset-bottom))}
+ .mn-install-single .mn-install-symbol{display:none}
+ .mn-install-single strong{font-size:13px}
+ .mn-install-single .mn-button{padding-inline:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
