@@ -477,3 +477,170 @@ body{background:#090a12}
  .mn-booking-featured-title{margin-bottom:20px}
 }
 @media(prefers-reduced-motion:reduce){.mn-booking-poster{transition:none}}
+
+
+/* MOVIENIGHT 2026 · coral cinema / paper booking UI · full student and host redesign */
+:root{color-scheme:light;--bg:#f5f5f6;--surface:#ffffff;--surface-2:#f8f8f9;--line:#e8e8eb;--muted:#6f7078;--gold:#ff5a31;--wine:#f34b24;--cream:#17171b;--soft:#5d5d66}
+html{background:#f5f5f6}
+body{background:#f5f5f6;color:#18191e;font-family:'Inter',sans-serif}
+.mn-app{background:#f5f5f6;color:#17181c}
+.mn-container{width:min(1220px,calc(100% - 44px))}
+.mn-header{height:72px;background:rgba(255,255,255,.96);border-bottom:1px solid #ebebed;box-shadow:0 2px 14px #12121208}
+.mn-brand{color:#171717;font-weight:800;letter-spacing:-.03em;font-size:17px}
+.mn-brand>span:last-child{color:#f34b24}
+.mn-brand-mark{background:#f34b24;border:0;color:white;border-radius:13px;width:35px;height:35px}
+.mn-nav a,.mn-host-link{color:#4f5056}
+.mn-nav a:hover,.mn-host-link:hover{color:#f34b24;background:#fff0eb}
+.mn-host-link{border-color:#ededed;color:#333}
+.mn-header-actions .mn-button{background:#f34b24;color:#fff;border-color:#f34b24}
+.mn-page{padding-top:32px;padding-bottom:100px}
+.mn-page-heading{margin:18px 0 25px}
+.mn-page-heading h1,.mn-invite-card h1,.mn-host-top h1,.mn-host-welcome h1{font-family:'Inter',sans-serif;font-weight:800;letter-spacing:-.055em;color:#17171a}
+.mn-page-heading h1{font-size:clamp(31px,5vw,54px)}
+.mn-page-heading>p,.mn-host-card>p{color:#65656b;line-height:1.65}
+.mn-kicker{color:#f34b24;letter-spacing:.12em;font-size:10px}
+.mn-button,.mn-booking-primary{background:#f34b24!important;color:#fff!important;border:1px solid #f34b24!important;border-radius:999px;box-shadow:none;font-weight:750;min-height:44px}
+.mn-button:hover:not(:disabled),.mn-booking-primary:hover:not(:disabled){background:#dd3c19!important;filter:none;transform:translateY(-1px)}
+.mn-button-outline{background:#fff!important;color:#202127!important;border:1px solid #dedee2!important}
+.mn-button-outline:hover:not(:disabled){background:#fff2ee!important;color:#f34b24!important;border-color:#f34b24!important}
+.mn-info-banner{background:#fff;border:1px solid #ececef;border-left:4px solid #f34b24;border-radius:14px;color:#202127;box-shadow:0 4px 20px #11111109}
+.mn-info-banner strong{color:#202127}.mn-info-banner span{color:#696a72}
+.mn-info-banner svg{color:#f34b24}
+.mn-cinema-hero{min-height:590px;background:#121014;border-radius:28px;overflow:hidden;box-shadow:0 22px 45px #15151522}
+.mn-cinema-hero:before{background:linear-gradient(90deg,rgba(8,8,11,.97) 0%,rgba(8,8,11,.78) 45%,rgba(8,8,11,.18) 100%)}
+.mn-cinema-hero h1,.mn-cinema-hero h1 span{color:#fff}
+.mn-cinema-hero h1 em{color:#ff7048}
+.mn-cinema-hero .mn-kicker{color:#ff9d7c}
+.mn-cinema-hero p{color:#e4dce0}
+.mn-cinema-hero .mn-button-outline{background:#ffffff16!important;color:white!important;border-color:#ffffff77!important}
+.mn-cinema-hero .mn-button-outline:hover{background:#ffffff30!important}
+.mn-journey h2,.mn-section h2{color:#202025;font-family:'Inter',sans-serif;font-weight:800;letter-spacing:-.045em}
+.mn-journey-card,.mn-featured-banner{background:#fff;border:1px solid #ececf0;border-radius:20px;box-shadow:0 7px 25px #15151508}
+.mn-journey-card h3,.mn-featured-banner h2{color:#1d1d21}
+.mn-journey-card p,.mn-featured-banner p{color:#6a6a73}
+.mn-journey-card>span{color:#f34b24}
+.mn-event-card{background:#fff!important;border:1px solid #ececf0!important;border-radius:19px;color:#19191e}
+.mn-event-card h2,.mn-event-card p{color:#19191e}
+.mn-featured-banner{background:linear-gradient(110deg,#fff,#fff1ed)!important}
+.mn-footer{background:#fff;color:#76767e;border-top:1px solid #ededf0}
+.mn-footer strong{color:#f34b24}
+.mn-booking-showcase{background:#080808;color:#fff;border:0;border-radius:27px;padding:clamp(18px,3vw,36px);box-shadow:0 18px 55px #0000001b}
+.mn-booking-showcase .mn-booking-topline{color:#fff}
+.mn-booking-topline a{color:#fff}
+.mn-booking-featured-title h2{color:#fff}
+.mn-booking-chip.active{background:#fff;color:#111;border-color:#fff}
+.mn-booking-poster.active{box-shadow:0 0 0 3px #f34b24,0 16px 36px #f34b2450}
+.mn-booking-detail{background:#fff;color:#19191d;border-radius:32px;box-shadow:0 15px 30px #0002}
+.mn-booking-detail-body{color:#19191d}
+.mn-booking-detail-body h3{color:#19191d}
+.mn-booking-detail-body p{color:#66666d}
+.mn-booking-score{background:#ffad62;color:#151515}
+.mn-booking-secondary{color:#f34b24}
+.mn-filter-bar{background:#fff;border:1px solid #ececef;border-radius:18px;padding:10px}
+.mn-search{background:#f7f7f9;border:1px solid #ededf0;border-radius:12px}
+.mn-search input{color:#19191d;font-size:16px}
+.mn-search input::placeholder{color:#878790}
+.mn-movie-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.mn-movie-card{background:#fff;border:1px solid #ededf0;border-radius:18px;box-shadow:0 8px 25px #1515150b;overflow:hidden}
+.mn-movie-card:hover{border-color:#ffab95;box-shadow:0 15px 35px #f34b2415}
+.mn-movie-info h3{font-family:'Inter',sans-serif;font-weight:750;font-size:15px;color:#17171b;line-height:1.35}
+.mn-movie-info p{color:#72727a;font-size:12px}
+.mn-movie-action{background:#fff1eb;color:#e7461e;border:1px solid #ffe0d7;border-radius:10px;min-height:41px;font-size:12px}
+.mn-movie-action:hover{background:#f34b24;color:#fff;border-color:#f34b24}
+.mn-poster{background:#e8e8ea}
+.mn-seat-layout{grid-template-columns:minmax(0,1fr) minmax(250px,320px);gap:20px}
+.mn-seat-main{background:#fff;border:1px solid #ededf0;border-radius:22px;padding:clamp(16px,3vw,35px);box-shadow:0 9px 26px #12121209}
+.mn-screen{background:linear-gradient(90deg,transparent,#f34b24,transparent);box-shadow:0 10px 20px #f34b2433;color:#f34b24}
+.mn-seat{background:#f1f1f3;border:1px solid #dddde1;color:#43434b;border-radius:9px 9px 4px 4px;font-weight:700}
+.mn-seat:hover:not(:disabled),.mn-seat.selected{background:#f34b24!important;border-color:#f34b24;color:white!important;box-shadow:0 3px 15px #f34b2430}
+.mn-seat.reserved{background:#dadade;color:#898990;border-color:#dadade}
+.mn-seat-summary,.mn-booking-panel{background:#fff!important;border:1px solid #ebebef!important;border-radius:22px;box-shadow:0 8px 24px #1212120a;color:#19191d}
+.mn-seat-summary h3{font-family:'Inter',sans-serif;font-weight:800;font-size:26px;color:#19191d}
+.mn-seat-summary p,.mn-booking-panel p{color:#707078}
+.mn-booking-panel h3,.mn-booking-panel h2{color:#17171b}
+.mn-invite-card{background:#fff;border:1px solid #ededf0;border-radius:25px;color:#17171b;box-shadow:0 18px 45px #12121212}
+.mn-invite-card p{color:#6e6e77}
+.mn-signin-notice{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff0eb;border:1px solid #ffddce;border-radius:13px;padding:13px 16px;margin:16px 0;color:#753923;font-size:13px}
+.mn-signin-notice a{color:#e3471e;font-weight:800;display:inline-flex;align-items:center;gap:5px;margin-left:auto}
+.mn-host-page{max-width:1240px}
+.mn-host-heading{padding:8px 0 16px}
+.mn-host-heading h2{font-size:clamp(28px,4vw,42px);font-weight:850;letter-spacing:-.06em;color:#17171b;margin:7px 0}
+.mn-host-heading p{color:#777780;margin:0;font-size:13px}
+.mn-host-layout{gap:20px}
+.mn-host-tabs{background:#fff;border:1px solid #ebebef;border-radius:18px;padding:9px;box-shadow:0 7px 25px #1212120a}
+.mn-host-tabs a,.mn-host-tabs button{color:#5b5b63;border-radius:12px}
+.mn-host-tabs a[aria-current="page"]{background:#f34b24;color:#fff;box-shadow:0 6px 14px #f34b2430}
+.mn-host-tabs a:hover,.mn-host-tabs button:hover{background:#fff0eb;color:#e74722}
+.mn-host-tabs button{border-color:#ebebef;color:#686871}
+.mn-host-top{align-items:center;margin:10px 0 20px}
+.mn-host-top h1{font-family:'Inter',sans-serif;font-size:clamp(25px,4vw,39px);font-weight:800}
+.mn-pill{border:1px solid #ffd7c9;color:#d8431e;background:#fff0eb}
+.mn-stat-grid{gap:13px}
+.mn-stat{background:#fff;border:1px solid #ececf0;border-radius:17px;padding:20px;box-shadow:0 7px 20px #12121208}
+.mn-stat>strong{font:800 34px 'Inter',sans-serif;color:#202026}
+.mn-stat>small{color:#7b7b84}
+.mn-stat svg{color:#f34b24}
+.mn-host-card{background:#fff!important;border:1px solid #ececf0!important;border-radius:19px;padding:clamp(18px,3vw,28px);box-shadow:0 7px 23px #11111109;color:#17171b}
+.mn-host-card h2{font-family:'Inter',sans-serif;font-weight:800;color:#17171b}
+.mn-host-card h3{color:#202026}
+.mn-host-welcome{background:#fff!important;border:1px solid #ececf0!important;border-radius:22px;color:#202026}
+.mn-host-welcome p{color:#777780}
+.mn-invite-row{border-bottom:1px solid #eeeeef;color:#222}
+.mn-invite-row span,.mn-invite-row p{color:#777780}
+.mn-form-grid{gap:16px}
+.mn-field{color:#33343a}
+.mn-field input,.mn-host-welcome input,.mn-account-form input,.mn-form-grid input,.mn-token-entry input{border:1px solid #e0e0e4!important;background:#fafafa!important;color:#17171b!important;border-radius:11px!important;min-height:48px;padding:11px 13px}
+.mn-field input:focus,.mn-account-form input:focus,.mn-form-grid input:focus{outline:2px solid #f34b2466;outline-offset:1px}
+.mn-token-entry input[readonly]{background:#f6f6f8!important}
+.mn-account-shell{background:#fff;border:1px solid #ededf0;border-radius:25px;box-shadow:0 18px 50px #12121212}
+.mn-account-aside{background:linear-gradient(150deg,#f34b24,#ff7855 70%,#ffac8e);color:#fff}
+.mn-account-aside .mn-kicker,.mn-account-aside h2,.mn-account-aside p{color:#fff}
+.mn-account-aside h2 span{color:#fff!important}
+.mn-account-panel{background:#fff}
+.mn-account-panel h1{color:#18181d}
+.mn-account-subtitle,.mn-account-links{color:#6c6c75}
+.mn-account-divider{color:#898992}
+.mn-account-divider:before,.mn-account-divider:after{background:#e5e5e9}
+.mn-account-links a,.mn-account-links button{color:#e3471e}
+.mn-dashboard-head h1{color:#17171b}
+.mn-dashboard-tile,.mn-dashboard-card{background:#fff;border:1px solid #ececf0;box-shadow:0 7px 25px #15151509;border-radius:19px}
+.mn-dashboard-tile small{color:#74747c}
+.mn-dashboard-tile strong,.mn-dashboard-card h2{color:#1b1b20}
+.mn-dashboard-tile p,.mn-dashboard-card p{color:#72727b}
+.mn-bottom-nav{background:#fff;border-top:1px solid #e8e8ed;box-shadow:0 -7px 25px #12121212}
+.mn-bottom-nav a{color:#777780}
+.mn-bottom-nav a[aria-current="page"]{color:#f34b24}
+.mn-install-launcher{background:#f34b24;color:#fff;border:1px solid #f34b24;box-shadow:0 8px 23px #f34b2440}
+.mn-install-launcher:hover{background:#dc421d}
+.mn-install-banner{background:#fff;color:#17171b;border:1px solid #ededf0;box-shadow:0 16px 40px #12121224}
+.mn-install-banner p{color:#6c6c75}
+.mn-install-symbol{background:#fff0eb;color:#f34b24}
+.mn-install-close{color:#777}
+@media(max-width:1000px){.mn-movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.mn-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mn-seat-layout{grid-template-columns:1fr}.mn-host-tabs{overflow-x:auto}}
+@media(max-width:760px){
+ .mn-container,.mn-header-inner{width:calc(100% - 28px)}
+ .mn-header{height:62px}
+ .mn-header-actions .mn-host-link{color:#333}
+ .mn-page{padding-top:12px;padding-bottom:115px}
+ .mn-cinema-hero{border-radius:18px;min-height:560px;margin:4px 0 20px}
+ .mn-cinema-hero h1{font-size:clamp(36px,9vw,55px)}
+ .mn-journey-grid{grid-template-columns:1fr}
+ .mn-booking-showcase{border-radius:20px;margin:8px 0 24px;padding:20px 12px 0}
+ .mn-booking-detail{border-radius:30px 30px 0 0;margin:0 -12px}
+ .mn-booking-featured-image{max-height:280px}
+ .mn-booking-detail-body{padding:20px}
+ .mn-movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .mn-movie-info h3{font-size:13px}
+ .mn-movie-info p{font-size:11px}
+ .mn-host-heading{padding:8px 0}
+ .mn-host-tabs{top:62px;margin:0 -14px;border-radius:0;box-shadow:0 7px 20px #12121210}
+ .mn-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mn-seat-grid{overflow-x:auto}
+ .mn-account-aside{padding:26px}
+ .mn-account-panel{padding:25px}
+ .mn-bottom-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+ .mn-bottom-nav a{color:#686870}
+ .mn-install-launcher{bottom:calc(82px + env(safe-area-inset-bottom))}
+ .mn-footer{padding-bottom:80px}
+}
+@media(max-width:390px){.mn-movie-grid{gap:9px}.mn-stat-grid{gap:9px}.mn-stat{padding:13px}.mn-stat>strong{font-size:26px}.mn-host-card{padding:15px}}
