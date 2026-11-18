@@ -21,13 +21,16 @@ export async function POST(request: Request) {
 
   const { data: event } = await db
     .from("events")
-    .select("status")
+    .select("status,phase")
     .eq("id", invite.event_id)
     .single();
 
-  if (event?.status !== "published") {
+  if (event?.status !== "published" || event.phase !== "voting") {
     return NextResponse.json({ error: "Voting is not open." }, { status: 409 });
   }
+
+  const {data:suggestion}=await db.from("movie_suggestions").select("id").eq("event_id",invite.event_id).eq("movie_id",Number(movieId)).maybeSingle();
+  if(!suggestion)return NextResponse.json({error:"Vote for a suggested movie only."},{status:409});
 
   const { error } = await db
     .from("votes")
