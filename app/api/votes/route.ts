@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/supabase-admin";
-import { hashToken } from "@/lib/tokens";
+import { resolveStudentInvite } from "@/lib/student-auth";
 
 export async function POST(request: Request) {
   const { token, movieId } = await request.json().catch(() => ({}));
-  if (typeof token !== "string" || !movieId) {
+  if (!movieId) {
     return NextResponse.json({ error: "Invitation and movie are required." }, { status: 400 });
   }
 
   const db = getAdminDb();
-  const { data: invite } = await db
-    .from("invitations")
-    .select("id,event_id")
-    .eq("token_hash", hashToken(token))
-    .maybeSingle();
+  const invite = await resolveStudentInvite(request,undefined,token);
 
   if (!invite) {
     return NextResponse.json({ error: "This invitation is invalid." }, { status: 404 });
@@ -21,13 +17,16 @@ export async function POST(request: Request) {
 
   const { data: event } = await db
     .from("events")
-    .select("status")
+    .select("status,phase")
     .eq("id", invite.event_id)
     .single();
 
-  if (event?.status !== "published") {
+  if (event?.status !== "published" || event.phase !== "voting") {
     return NextResponse.json({ error: "Voting is not open." }, { status: 409 });
   }
+
+  const {data:suggestion}=await db.from("movie_suggestions").select("id").eq("event_id",invite.event_id).eq("movie_id",Number(movieId)).maybeSingle();
+  if(!suggestion)return NextResponse.json({error:"Vote for a suggested movie only."},{status:409});
 
   const { error } = await db
     .from("votes")

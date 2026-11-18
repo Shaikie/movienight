@@ -11,9 +11,10 @@ export async function POST(request:Request) {
   return NextResponse.json({error:"Enter your full name, a valid email and phone number."},{status:400});
  try {
   const db=getAdminDb();
-  const {data:event,error:evError}=await db.from("events").select("id").eq("status","published").order("starts_at",{ascending:true}).limit(1).maybeSingle();
+  const {data:event,error:evError}=await db.from("events").select("id,phase").eq("status","published").order("starts_at",{ascending:true}).limit(1).maybeSingle();
   if(evError)throw evError;
   if(!event)return NextResponse.json({error:"No screening is open for registration."},{status:409});
+  if(!["suggestions","voting"].includes(event.phase))return NextResponse.json({error:"Registration is closed for this screening."},{status:409});
   const token=randomBytes(32).toString("base64url");
   const {error}=await db.rpc("register_movie_night_guest",{p_event_id:event.id,p_name:name,p_email:email,p_phone:phone,p_token_hash:hashToken(token)});
   if(error)return NextResponse.json({error:error.message},{status:409});
