@@ -1,31 +1,28 @@
 import { NextResponse } from "next/server";
-
 const demo = [
- {id:27205,title:"Inception",overview:"A skilled thief is offered a chance to have his past crimes forgiven if he can plant an idea in someone's mind.",poster_path:"/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",release_date:"2010-07-16",vote_average:8.4,genre:"Sci-Fi"},
- {id:157336,title:"Interstellar",overview:"A team of explorers travels beyond this galaxy to discover whether mankind has a future among the stars.",poster_path:"/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",release_date:"2014-11-07",vote_average:8.7,genre:"Adventure"},
- {id:155,title:"The Dark Knight",overview:"Batman faces a criminal mastermind who wants to plunge Gotham into anarchy.",poster_path:"/qJ2tW6WMUDux911r6m7haRef0WH.jpg",release_date:"2008-07-18",vote_average:9.0,genre:"Action"},
- {id:496243,title:"Parasite",overview:"A family sees an opportunity when one of its members starts working for a wealthy household.",poster_path:"/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",release_date:"2019-05-30",vote_average:8.5,genre:"Thriller"},
- {id:324857,title:"Spider-Man: Into the Spider-Verse",overview:"Miles Morales becomes Spider-Man and meets heroes from other dimensions.",poster_path:"/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg",release_date:"2018-12-14",vote_average:8.4,genre:"Animation"},
- {id:438631,title:"Dune",overview:"A gifted young man must travel to the most dangerous planet in the universe to secure his future.",poster_path:"/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",release_date:"2021-09-15",vote_average:8.0,genre:"Sci-Fi"},
- {id:546554,title:"Knives Out",overview:"A detective investigates the death of a celebrated crime novelist.",poster_path:"/pThyQovXQrw2m0s9x82twj48Jq4.jpg",release_date:"2019-11-27",vote_average:7.9,genre:"Mystery"},
- {id:13,title:"Forrest Gump",overview:"The extraordinary life of a gentle man unfolds across decades of American history.",poster_path:"/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",release_date:"1994-07-06",vote_average:8.5,genre:"Drama"}
-];
-
+{id:27205,title:"Inception",overview:"A thief plants an idea in a dream.",poster_path:"/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg",release_date:"2010-07-16",vote_average:8.4,genre:"Sci-Fi"},
+{id:157336,title:"Interstellar",overview:"Explorers travel beyond the galaxy.",poster_path:"/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",release_date:"2014-11-07",vote_average:8.7,genre:"Adventure"}];
+const categories:Record<string,string>={popular:"movie/popular",now_playing:"movie/now_playing",top_rated:"movie/top_rated",upcoming:"movie/upcoming"};
 export async function GET(request:Request) {
- const query=new URL(request.url).searchParams.get("q")?.trim().toLowerCase()||"";
+ const params=new URL(request.url).searchParams;
+ const q=(params.get("q")||"").trim().slice(0,120);
+ const category=params.get("category")||"popular";
+ const rawPage=Number(params.get("page")||1);
+ const page=Number.isInteger(rawPage)?Math.max(1,Math.min(500,rawPage)):1;
  const key=process.env.TMDB_API_KEY;
  if(!key) {
-  const results=demo.filter(movie=>!query||(movie.title+" "+movie.overview+" "+movie.genre).toLowerCase().includes(query));
-  return NextResponse.json({results,source:"sample"});
+  const results=demo.filter(m=>!q||(m.title+" "+m.overview+" "+m.genre).toLowerCase().includes(q.toLowerCase()));
+  return NextResponse.json({results:page===1?results:[],page,total_pages:1,total_results:results.length,source:"sample"});
  }
- const endpoint=query?"search/movie":"movie/now_playing";
- const url=new URL("https://api.themoviedb.org/3/"+endpoint);
+ const url=new URL("https://api.themoviedb.org/3/"+(q?"search/movie":categories[category]||categories.popular));
  url.searchParams.set("api_key",key);
  url.searchParams.set("language","en-US");
- if(query)url.searchParams.set("query",query);
- url.searchParams.set("page","1");
- const response=await fetch(url,{next:{revalidate:1800}});
- if(!response.ok)return NextResponse.json({error:"Movie provider is temporarily unavailable."},{status:502});
- const data=await response.json();
- return NextResponse.json({results:(data.results??[]).map((movie:{id:number;title:string;overview:string;poster_path:string|null;release_date:string;vote_average:number})=>({...movie,genre:"Featured"})),source:"tmdb"});
+ url.searchParams.set("page",String(page));
+ if(q)url.searchParams.set("query",q);
+ try {
+  const response=await fetch(url,{next:{revalidate:900}});
+  if(!response.ok)return NextResponse.json({error:"Movie provider is temporarily unavailable."},{status:502});
+  const data=await response.json();
+  return NextResponse.json({results:(data.results??[]).map((m:{id:number;title:string;overview:string;poster_path:string|null;release_date:string;vote_average:number})=>({...m,genre:"Featured"})),page:data.page??page,total_pages:Math.min(data.total_pages??1,500),total_results:data.total_results??0,source:"tmdb"});
+ }catch{return NextResponse.json({error:"Unable to reach movie provider."},{status:502});}
 }
