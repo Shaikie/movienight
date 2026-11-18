@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useEffect,useState } from "react";
-import { ArrowRight,Film,Ticket,Users,Vote,ShoppingBag,ShieldCheck,Check,CalendarDays } from "lucide-react";
+import { ArrowRight,Film,Ticket,Users,Vote,ShoppingBag,ShieldCheck,Check,CalendarDays, Menu, X } from "lucide-react";
 type Event={id:string;title:string;description:string;venue:string;starts_at:string;seat_rows:number;seats_per_row:number;phase:string;selected_movie_id:number|null;winning_movie_title:string|null;winning_movie_poster:string|null};
 type Movie={id:number;title:string;poster_path:string|null;overview:string;vote_average:number};
 type Suggestion={id:string;movie_id:number;movie_title:string;poster_path:string|null;votes?:number};
@@ -22,6 +22,7 @@ const phaseLabel:Record<string,string>={suggestions:"Movie suggestions",voting:"
 export default function CoictFlow({page="home",invitationToken=""}:{page?:Page;invitationToken?:string}){
  const [event,setEvent]=useState<Event|null>(null),[token,setToken]=useState(invitationToken);
  const [studentLoggedIn,setStudentLoggedIn]=useState(false);
+ const [mobileMenuOpen,setMobileMenuOpen]=useState(false);
  const [admin,setAdmin]=useState(false),[password,setPassword]=useState(""),[message,setMessage]=useState("");
  const [suggestions,setSuggestions]=useState<Suggestion[]>([]),[movies,setMovies]=useState<Movie[]>([]);
  const [query,setQuery]=useState(""),[pageNumber,setPageNumber]=useState(1),[totalPages,setTotalPages]=useState(1);
@@ -57,7 +58,7 @@ export default function CoictFlow({page="home",invitationToken=""}:{page?:Page;i
  const links:[string,string][]=[["/","Home"],["/dashboard","Dashboard"],["/movies","Explore Movies"],["/vote","Vote"],["/seats","Reserve Seats"],["/snacks","Snacks"],["/host","Host"]];
  const hostLinks:[string,string][]=[["/host","Overview"],["/host/event","Screening"],["/host/votes","Voting"],["/host/invitations","Invitations"],["/host/reservations","Reservations"],["/host/snacks","Marketplace"]];
  const winner=event?.winning_movie_title;
- return <main className="mn-app"><header className="mn-header"><div className="mn-container mn-header-inner"><Link href="/" className="mn-brand"><span className="mn-brand-mark">✦</span>COICT <span>MOVIENIGHT</span></Link><nav className="mn-nav">{links.map(([href,label])=><Link href={href} key={href}>{label}</Link>)}</nav><div className="mn-header-actions"><Link href={studentLoggedIn?"/dashboard":"/login"} className="mn-host-link">{studentLoggedIn?"My Account":"Sign In"}</Link><Link href="/signup" className="mn-button mn-button-small">Join Now</Link></div></div></header>
+ return <main className="mn-app"><header className="mn-header"><div className="mn-container mn-header-inner"><Link href="/" className="mn-brand"><span className="mn-brand-mark">✦</span>COICT <span>MOVIENIGHT</span></Link><nav className="mn-nav" aria-label="Main navigation">{links.map(([href,label])=><Link href={href} key={href}>{label}</Link>)}</nav><div className="mn-header-actions"><Link href={studentLoggedIn?"/dashboard":"/login"} className="mn-host-link">{studentLoggedIn?"My Account":"Sign In"}</Link>{!studentLoggedIn&&<Link href="/signup" className="mn-button mn-button-small">Join Now</Link>}</div><button type="button" className="mn-menu-toggle" aria-label={mobileMenuOpen?"Close navigation":"Open navigation"} aria-expanded={mobileMenuOpen} aria-controls="mn-mobile-menu" onClick={()=>setMobileMenuOpen(open=>!open)}>{mobileMenuOpen?<X size={22}/>:<Menu size={22}/>}</button></div>{mobileMenuOpen&&<nav id="mn-mobile-menu" className="mn-mobile-nav" aria-label="Mobile navigation">{links.map(([href,label])=><Link href={href} key={href} onClick={()=>setMobileMenuOpen(false)}>{label}</Link>)}<Link href={studentLoggedIn?"/dashboard":"/login"} onClick={()=>setMobileMenuOpen(false)}>{studentLoggedIn?"My Account":"Sign In"}</Link>{!studentLoggedIn&&<Link href="/signup" onClick={()=>setMobileMenuOpen(false)}>Create account</Link>}</nav>}</div></header>
  <div className="mn-container mn-page">
  {message&&<div className="mn-info-banner" role="status"><Check size={18}/><span>{message}</span><button onClick={()=>setMessage("")}>Dismiss</button></div>}
  {event&&<div className="mn-info-banner"><CalendarDays size={19}/><div><strong>{event.title} · {phaseLabel[event.phase]||event.phase}</strong><span>{new Date(event.starts_at).toLocaleString("en-GB",{timeZone:"Africa/Dar_es_Salaam",dateStyle:"medium",timeStyle:"short"})} · {event.venue}</span></div></div>}
