@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/supabase-admin";
-import { hashToken } from "@/lib/tokens";
+import { resolveStudentInvite } from "@/lib/student-auth";
 
 export async function POST(request: Request) {
   const { token, movieId } = await request.json().catch(() => ({}));
-  if (typeof token !== "string" || !movieId) {
+  if (!movieId) {
     return NextResponse.json({ error: "Invitation and movie are required." }, { status: 400 });
   }
 
   const db = getAdminDb();
-  const { data: invite } = await db
-    .from("invitations")
-    .select("id,event_id")
-    .eq("token_hash", hashToken(token))
-    .maybeSingle();
+  const invite = await resolveStudentInvite(request,undefined,token);
 
   if (!invite) {
     return NextResponse.json({ error: "This invitation is invalid." }, { status: 404 });
