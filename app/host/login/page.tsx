@@ -1,2 +1,2 @@
-import MovieNight from "@/components/movie-night";
-export default function HostLoginPage(){return <MovieNight page="host"/>;}
+import CoictFlow from "@/components/coict-flow";
+export default function HostLoginPage(){return <CoictFlow page="host"/>;}
